@@ -1,0 +1,53 @@
+---
+name: Never the Same
+strategy: polling
+refresh_interval: 60
+polling_verb: GET
+polling_url: "https://{{ api_host }}/v1/artwork?zone={{ trmnl.user.time_zone_iana | url_encode }}&cadence={{ cadence | url_encode }}&style={{ art_style | url_encode }}&palette={{ palette | url_encode }}&density={{ density | url_encode }}&seed={{ edition_seed | url_encode }}"
+no_screen_padding: 'yes'
+dark_mode: 'no'
+custom_fields:
+- keyname: api_host
+  name: Artwork API hostname
+  field_type: string
+  description: Enter the hostname of your deployed artwork API, without https:// or a path.
+  placeholder: artwork.example.com
+- keyname: cadence
+  name: New artwork
+  field_type: select
+  default: daily
+  options:
+  - Daily
+  - Weekly
+- keyname: art_style
+  name: Composition style
+  field_type: select
+  default: rotating_gallery
+  options:
+  - Rotating Gallery
+  - Orbital Geometry
+  - Constructivist
+  - Strata
+- keyname: palette
+  name: Palette
+  field_type: select
+  default: rotating_palette
+  options:
+  - Rotating Palette
+  - Poster
+  - Coast
+  - Orchard
+  - Ink
+- keyname: density
+  name: Density
+  field_type: select
+  default: balanced
+  options:
+  - Balanced
+  - Layered
+- keyname: edition_seed
+  name: Personal seed
+  field_type: string
+  optional: true
+  maxlength: 64
+  description: Use the same seed on different devices to match their daily or weekly editions.
