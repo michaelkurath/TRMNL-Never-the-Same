@@ -1,0 +1,9 @@
+{
+  "artwork_id": "nts-preview-constructivist",
+  "edition_date": "2026-11-17",
+  "style": "constructivist",
+  "images": {
+    "landscape": "https://cdn.jsdelivr.net/gh/michaelkurath/TRMNL-Never-the-Same@main/preview/constructivist-landscape.png",
+    "portrait": "https://cdn.jsdelivr.net/gh/michaelkurath/TRMNL-Never-the-Same@main/preview/constructivist-portrait.png"
+  }
+}
