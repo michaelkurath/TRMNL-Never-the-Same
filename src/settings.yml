@@ -14,6 +14,12 @@ id: 543559
 oauth_enabled: 'false'
 oauth_pkce_enabled: 'no'
 custom_fields:
+- keyname: about
+  name: About Never the Same
+  field_type: author_bio
+  category: art,images
+  github_url: https://github.com/michaelkurath/TRMNL-Never-the-Same
+  description: "<p>Never the Same turns your TRMNL into a rotating gallery of generative abstract art. Orbital Geometry plays with rings and intersecting shapes, Constructivist arranges bold geometric forms, and Strata builds compositions from layered contours. The artwork is composed separately for landscape and portrait on TRMNL Frame.</p> <p>Choose a style or let Rotating Gallery cycle through all three. Pick a palette, including Ink for monochrome, and choose Balanced or Layered detail. A new edition is generated daily or each Monday in your local time zone. Refreshing with the same settings during an edition keeps the same composition. An optional personal seed gives you a reproducible variation.</p> <p>To connect the recipe, enter the hostname of a running artwork API. You can use <code>never-the-same-artwork.onrender.com</code> or deploy your own from the GitHub repository.</p>"
 - keyname: api_host
   name: Artwork API hostname
   field_type: string
