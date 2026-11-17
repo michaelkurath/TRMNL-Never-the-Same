@@ -25,6 +25,10 @@ export function createArtworkServer(publicOrigin, clock = () => new Date()) {
       }
 
       const url = new URL(request.url, origin);
+      if (url.pathname === '/health') {
+        return json(response, 200, { status: 'ok' });
+      }
+
       if (url.pathname === '/v1/artwork') {
         const art = selectArtwork(url.searchParams, clock());
         const key = artworkKey(art);
@@ -67,6 +71,6 @@ export function createArtworkServer(publicOrigin, clock = () => new Date()) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.env.PORT || 8787);
   const host = process.env.HOST || '127.0.0.1';
-  const origin = process.env.PUBLIC_ORIGIN || `http://127.0.0.1:${port}`;
+  const origin = process.env.PUBLIC_ORIGIN || process.env.RENDER_EXTERNAL_URL || `http://127.0.0.1:${port}`;
   createArtworkServer(origin).listen(port, host, () => console.log(`Never the Same API listening on ${host}:${port}`));
 }

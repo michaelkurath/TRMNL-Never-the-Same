@@ -43,6 +43,9 @@ test('manifest image URLs render at both native resolutions and support immutabl
   t.after(() => server.close());
   await once(server, 'listening');
   const base = `http://127.0.0.1:${server.address().port}`;
+  const health = await fetch(`${base}/health`);
+  assert.equal(health.status, 200);
+  assert.deepEqual(await health.json(), { status: 'ok' });
   const manifest = await fetch(`${base}/v1/artwork?zone=Europe%2FZurich`);
   assert.equal(manifest.headers.get('cache-control'), 'no-store');
   const data = await manifest.json();

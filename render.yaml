@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: never-the-same-artwork
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npm test
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: HOST
+        value: "0.0.0.0"
+      - key: NODE_VERSION
+        value: "24.22.1"
