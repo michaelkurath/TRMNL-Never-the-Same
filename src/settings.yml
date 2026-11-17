@@ -7,7 +7,7 @@ polling_verb: get
 framework_version: 3.4.6
 serverless_language: ''
 refresh_interval_floor: ''
-polling_url: https://{{ api_host }}/v1/artwork?zone={{ trmnl.user.time_zone_iana | url_encode }}&cadence={{ cadence | url_encode }}&style={{ art_style | url_encode }}&palette={{ palette | url_encode }}&density={{ density | url_encode }}&seed={{ edition_seed | url_encode }}
+polling_url: 'https://{{ api_host | default: ''never-the-same-artwork.onrender.com'' }}/v1/artwork?zone={{ trmnl.user.time_zone_iana | url_encode }}&cadence={{ cadence | url_encode }}&style={{ art_style | url_encode }}&palette={{ palette | url_encode }}&density={{ density | url_encode }}&seed={{ edition_seed | url_encode }}'
 polling_headers: ''
 polling_body: ''
 id: 543559
@@ -19,12 +19,14 @@ custom_fields:
   field_type: author_bio
   category: art,images
   github_url: https://github.com/michaelkurath/TRMNL-Never-the-Same
-  description: "<p>Never the Same turns your TRMNL into a rotating gallery of generative abstract art. Orbital Geometry plays with rings and intersecting shapes, Constructivist arranges bold geometric forms, and Strata builds compositions from layered bands, Flow Fields sweeps ribbons across the display, Topographic draws nested contours, and Organic Growth traces stems and leaves. The artwork is composed separately for landscape and portrait on TRMNL Frame.</p> <p>Choose a style or let Rotating Gallery cycle through all six. Pick a palette, including Ink for monochrome, and choose Balanced or Layered detail. A new edition is generated daily or each Monday in your local time zone. Refreshing with the same settings during an edition keeps the same composition. An optional personal seed gives you a reproducible variation.</p> <p>To connect the recipe, enter the hostname of a running artwork API. You can use <code>never-the-same-artwork.onrender.com</code> or deploy your own from the GitHub repository.</p>"
+  description: "<p>Never the Same turns your TRMNL into a rotating gallery of generative abstract art. Orbital Geometry plays with rings and intersecting shapes, Constructivist arranges bold geometric forms, and Strata builds compositions from layered bands, Flow Fields sweeps ribbons across the display, Topographic draws nested contours, and Organic Growth traces stems and leaves. The artwork is composed separately for landscape and portrait on TRMNL Frame.</p> <p>Choose a style or let Rotating Gallery cycle through all six. Pick a palette, including Ink for monochrome, and choose Balanced or Layered detail. A new edition is generated daily or each Monday in your local time zone. Refreshing with the same settings during an edition keeps the same composition. An optional personal seed gives you a reproducible variation.</p> <p>The recipe uses a hosted artwork API by default. To self-host, deploy the API from the GitHub repository and enter its hostname in Artwork API hostname.</p>"
 - keyname: api_host
   name: Artwork API hostname
   field_type: string
-  description: Enter the hostname of your deployed artwork API, without https:// or a path.
-  placeholder: artwork.example.com
+  optional: true
+  default: never-the-same-artwork.onrender.com
+  description: Leave blank to use the hosted API. To self-host, enter your API hostname without https:// or a path.
+  placeholder: never-the-same-artwork.onrender.com
 - keyname: cadence
   name: New artwork
   field_type: select
