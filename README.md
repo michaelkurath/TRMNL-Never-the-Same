@@ -44,11 +44,11 @@ https://{{ api_host }}/v1/artwork?zone={{ trmnl.user.time_zone_iana | url_encode
 | Setting | Choices |
 | --- | --- |
 | New artwork | Daily or weekly |
-| Composition | Rotating Gallery, Orbital Geometry, Constructivist, Strata |
+| Composition | Rotating Gallery, Orbital Geometry, Constructivist, Strata, Flow Fields, Topographic, Organic Growth |
 | Palette | Rotating Palette, Poster, Coast, Orchard, Ink |
 | Density | Balanced or layered |
 | Personal seed | Optional. Devices with the same account-local edition date and matching settings can reproduce the same composition for a given orientation. |
 
-Rotating Gallery cycles through the three styles. The image URL contains a versioned edition ID and is immutable. Bump the renderer version and keep serving existing versioned routes if a future release changes how an existing ID renders.
+Rotating Gallery cycles through all six styles. Flow Fields draws sweeping ribbons, Topographic builds nested contours, and Organic Growth traces branching stems and leaves. The image URL contains a versioned edition ID and is immutable. Bump the renderer version and keep serving existing versioned routes if a future release changes how an existing ID renders.
 
 Frame landscape and portrait use native 2560 × 1440 and 1440 × 2560 PNGs. Mashups choose artwork by their own aspect ratio and may crop. The preview shows the software colors before TRMNL's Spectra 6 conversion. The API, edition boundaries, and image dimensions were tested locally. Live import, on-device rendering, color conversion, and Clock Sync remain to be verified.

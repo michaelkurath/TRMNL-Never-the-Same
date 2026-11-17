@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { once } from 'node:events';
 import { test } from 'node:test';
 import sharp from 'sharp';
-import { artworkKey, renderSvg, selectArtwork } from './art.mjs';
+import { artworkKey, parseArtworkKey, renderSvg, selectArtwork } from './art.mjs';
 import { createArtworkServer } from './server.mjs';
 
 const beforeZurichMidnight = new Date('2026-11-17T22:59:59Z');
@@ -35,6 +36,43 @@ test('explicit style, palette and density are preserved and the personal seed ch
   query.set('seed', 'test edition');
   const second = selectArtwork(query, beforeZurichMidnight);
   assert.notEqual(renderSvg(first, 'landscape'), renderSvg(second, 'landscape'));
+});
+
+test('the gallery includes all six styles and existing artwork URLs retain their rendering', () => {
+  const selected = new Set();
+  for (let day = 17; day < 23; day++) {
+    selected.add(selectArtwork(options, new Date(Date.UTC(2026, 10, day, 12))).style);
+  }
+  assert.deepEqual(selected, new Set([
+    'orbital_geometry', 'constructivist', 'strata', 'flow_fields', 'topographic', 'organic_growth',
+  ]));
+  const originalImages = createHash('sha256');
+  for (const style of ['orbital_geometry', 'constructivist', 'strata']) {
+    const art = parseArtworkKey(`v1-2026-11-17-${style}-poster-balanced-7acd603d`);
+    for (const orientation of ['landscape', 'portrait']) originalImages.update(renderSvg(art, orientation));
+  }
+  assert.equal(originalImages.digest('hex'), '05f7d059c91232534a15960c6158f2fb76510f7691caf6086bfb8de5a6f38a78');
+});
+
+test('new styles render PNGs with different seeds and densities in both orientations', async () => {
+  for (const style of ['flow_fields', 'topographic', 'organic_growth']) {
+    const query = new URLSearchParams({ style, palette: 'ink' });
+    const balanced = selectArtwork(query, beforeZurichMidnight);
+    assert.equal(balanced.style, style);
+    assert.deepEqual(parseArtworkKey(artworkKey(balanced)), balanced);
+    query.set('density', 'layered');
+    const layered = selectArtwork(query, beforeZurichMidnight);
+    query.set('seed', 'another edition');
+    const reseeded = selectArtwork(query, beforeZurichMidnight);
+    for (const [orientation, expected] of Object.entries({ landscape: [2560, 1440], portrait: [1440, 2560] })) {
+      const image = renderSvg(layered, orientation);
+      assert.notEqual(image, renderSvg(balanced, orientation));
+      assert.notEqual(image, renderSvg(reseeded, orientation));
+      const png = await sharp(Buffer.from(image)).png().toBuffer();
+      const metadata = await sharp(png).metadata();
+      assert.deepEqual([metadata.width, metadata.height], expected);
+    }
+  }
 });
 
 test('manifest image URLs render at both native resolutions and support immutable caching', async t => {

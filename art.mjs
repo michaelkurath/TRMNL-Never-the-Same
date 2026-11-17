@@ -1,5 +1,5 @@
 const DAY_MS = 86400000;
-const series = ['orbital_geometry', 'constructivist', 'strata'];
+const series = ['orbital_geometry', 'flow_fields', 'constructivist', 'topographic', 'strata', 'organic_growth'];
 const palettes = {
   poster: ['#f1e6cb', '#172b37', '#c83c32', '#e6af35', '#256981'],
   coast: ['#e8eadb', '#163d43', '#146b77', '#e9bd4d', '#cb5748'],
@@ -55,7 +55,7 @@ export function selectArtwork(query, now = new Date()) {
     date, variant,
     style: series.includes(requestedStyle) ? requestedStyle : series[(period + offset) % series.length],
     palette: Object.hasOwn(palettes, requestedPalette)
-      ? requestedPalette : automaticPalettes[(Math.floor(period / series.length) + offset) % automaticPalettes.length],
+      ? requestedPalette : automaticPalettes[(Math.floor(period / automaticPalettes.length) + offset) % automaticPalettes.length],
     density: query.get('density') === 'layered' ? 'layered' : 'balanced',
   };
 }
@@ -160,7 +160,102 @@ function strata({ w, h, unit, colors, random, layered }) {
   return shapes.join('');
 }
 
-const renderers = { orbital_geometry: orbital, constructivist, strata };
+function flowFields({ w, h, unit, colors, random, layered }) {
+  const [, dark, accent, highlight, secondary] = colors;
+  const tall = h > w;
+  const length = Math.max(w, h);
+  const pitch = unit * 0.058;
+  const lanes = layered ? 16 : 12;
+  const direction = random() < 0.5 ? -1 : 1;
+  const bend = unit * (0.22 + random() * 0.11) * direction;
+  const focus = length * (0.42 + random() * 0.16);
+  const paths = [];
+
+  for (let lane = 0; lane < lanes; lane++) {
+    const fraction = lane / (lanes - 1) - 0.5;
+    const y = unit * 0.52 + (lane - (lanes - 1) / 2) * pitch;
+    const center = unit * 0.49 + fraction * unit * 0.48;
+    const end = y - bend * 0.68;
+    const data = `M${point(-pitch, y + bend)} C${point(length * 0.19, y + bend)} ${point(focus - length * 0.2, center)} ${point(focus, center)} S${point(length * 0.83, end)} ${point(length + pitch, end)}`;
+    const color = lane === Math.floor(lanes * 0.38) ? accent
+      : lane === Math.floor(lanes * 0.65) ? highlight : fraction < 0 ? secondary : dark;
+    const weight = color === accent || color === highlight ? pitch * 0.64 : pitch * (layered ? 0.24 : 0.20);
+    paths.push(`<path d="${data}" fill="none" stroke="${color}" stroke-width="${rounded(weight)}"/>`);
+  }
+
+  const drawing = paths.join('');
+  return tall ? `<g transform="translate(${w} 0) rotate(90)">${drawing}</g>` : drawing;
+}
+
+function topographic({ w, h, unit, colors, random, layered }) {
+  const [paper, dark, accent, highlight, secondary] = colors;
+  const phase = random() * 2 * Math.PI;
+  const focusX = w * (0.38 + random() * 0.24);
+  const focusY = h * (0.37 + random() * 0.26);
+  const ratio = 0.89 + random() * 0.16;
+  const count = layered ? 13 : 10;
+  const contours = [];
+
+  for (let level = count; level >= 1; level--) {
+    const radial = unit * (0.052 + level * (layered ? 0.044 : 0.054));
+    const offset = (1 - level / count) * radial * 0.28;
+    const points = [];
+    for (let sample = 0; sample < 144; sample++) {
+      const angle = sample / 144 * 2 * Math.PI;
+      const displacement = 1 + 0.16 * Math.sin(3 * angle + phase) +
+        0.09 * Math.cos(5 * angle - phase) + 0.11 * Math.sin(2 * angle + phase);
+      points.push(point(focusX + Math.cos(phase) * offset + Math.cos(angle) * radial * displacement * ratio,
+        focusY + Math.sin(phase) * offset + Math.sin(angle) * radial * displacement));
+    }
+    const data = `M${points.join(' L')} Z`;
+    const fill = level === 1 ? accent : level === 3 ? highlight : level === count - 4 ? secondary : paper;
+    contours.push(`<path d="${data}" fill="${fill}" stroke="${dark}" stroke-width="${rounded(unit * 0.004)}" stroke-linejoin="round"/>`);
+  }
+  return contours.join('');
+}
+
+function organicGrowth({ w, h, unit, colors, random, layered }) {
+  const [paper, dark, accent, highlight, secondary] = colors;
+  const tall = h > w;
+  const curveSign = random() < 0.5 ? -1 : 1;
+  const lean = w * (tall ? 0.14 : 0.26) * curveSign;
+  const spread = unit * (tall ? 0.23 : 0.31);
+  const stemPoint = t => [w * 0.5 + (t - 0.5) * lean + Math.sin(t * Math.PI) * lean * 0.35,
+    h * (0.90 - 0.75 * t)];
+  const stem = Array.from({length: 25}, (_, i) => point(...stemPoint(i / 24)));
+  const leaves = [`<path d="M${stem.join(' L')}" fill="none" stroke="${dark}" stroke-width="${rounded(unit * 0.012)}" stroke-linecap="round"/>`];
+  const count = layered ? 13 : 9;
+
+  for (let i = 0; i < count; i++) {
+    const t = 0.13 + i / count * 0.80;
+    const [x, y] = stemPoint(t);
+    const direction = (i % 2 === 0 ? 1 : -1) * curveSign;
+    const reach = spread * (0.65 + 0.35 * Math.sin(t * Math.PI)) * (0.87 + random() * 0.20);
+    const rise = unit * (0.09 + random() * 0.065);
+    const tipX = x + reach * direction;
+    const tipY = y - rise;
+    const outer = point(x + reach * direction * 0.27, y - rise * 1.37);
+    const inner = point(x + reach * direction * 0.68, y + rise * 0.22);
+    const blade = `M${point(x, y)} Q${outer} ${point(tipX, tipY)} Q${inner} ${point(x, y)} Z`;
+    leaves.push(path(blade, [secondary, dark, accent, secondary, highlight][i % 5]));
+    if (layered || i % 3 === 0) {
+      const vein = `M${point(x, y)} Q${point(x + reach * direction * 0.56, y - rise * 0.28)} ${point(tipX, tipY)}`;
+      leaves.push(`<path d="${vein}" fill="none" stroke="${paper}" stroke-width="${rounded(unit * 0.0024)}"/>`);
+    }
+  }
+  const [tipX, tipY] = stemPoint(1);
+  leaves.push(circle(tipX, tipY, unit * 0.031, accent));
+  return leaves.join('');
+}
+
+const renderers = {
+  orbital_geometry: orbital,
+  constructivist,
+  strata,
+  flow_fields: flowFields,
+  topographic,
+  organic_growth: organicGrowth,
+};
 
 export function renderSvg(artwork, orientation) {
   const [w, h] = orientations[orientation];
