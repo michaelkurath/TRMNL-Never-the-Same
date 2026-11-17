@@ -1,11 +1,18 @@
 ---
-name: Never the Same
 strategy: polling
-refresh_interval: 60
-polling_verb: GET
-polling_url: "https://{{ api_host }}/v1/artwork?zone={{ trmnl.user.time_zone_iana | url_encode }}&cadence={{ cadence | url_encode }}&style={{ art_style | url_encode }}&palette={{ palette | url_encode }}&density={{ density | url_encode }}&seed={{ edition_seed | url_encode }}"
 no_screen_padding: 'yes'
 dark_mode: 'no'
+static_data: ''
+polling_verb: get
+framework_version: 3.4.6
+serverless_language: ''
+refresh_interval_floor: ''
+polling_url: https://{{ api_host }}/v1/artwork?zone={{ trmnl.user.time_zone_iana | url_encode }}&cadence={{ cadence | url_encode }}&style={{ art_style | url_encode }}&palette={{ palette | url_encode }}&density={{ density | url_encode }}&seed={{ edition_seed | url_encode }}
+polling_headers: ''
+polling_body: ''
+id: 543559
+oauth_enabled: 'false'
+oauth_pkce_enabled: 'no'
 custom_fields:
 - keyname: api_host
   name: Artwork API hostname
@@ -51,3 +58,6 @@ custom_fields:
   optional: true
   maxlength: 64
   description: Use the same seed on different devices to match their daily or weekly editions.
+name: Never the Same
+description: ''
+refresh_interval: 60
